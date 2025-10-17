@@ -1,0 +1,6 @@
+[submodule "thirdparty/src/MoGe"]
+	path = thirdparty/src/MoGe
+	url = https://github.com/microsoft/MoGe.git
+[submodule "thirdparty/src/Marigold"]
+	path = thirdparty/src/Marigold
+	url = https://github.com/prs-eth/Marigold.git
