@@ -72,3 +72,7 @@ By default, the script renders visualization using GPU. Add `--cpu` to run every
 `ROT_LIGHT_NUM_LIGHT,ROT_LIGHT_NUM_LOOP` in `evalmde/visualization/__init__.py` specifies the light configuration. 
 `ROT_LIGHT_NUM_LIGHT` locations of the source of directional light are equally spaced along the path that spirals up from `(0,0,-1)` to `(0,0,1)` along the surface of a unit sphere, rotating around `z`-axis for `ROT_LIGHT_NUM_LOOP` times.
 Textureless mesh under the `i`-th source of directional light (`LIGHT_L<=i<LIGHT_R`) are rendered in the above command. 
+Textureless mesh under the `i`-th source of directional light (`LIGHT_L<=i<LIGHT_R`) are rendered in the above command.
+
+## Dataset
+Dataset can be accessed [here](https://drive.google.com/drive/folders/1amzb6KyF2USFQ5W4CeYKFCh1F-yOQsmp?usp=sharing).
