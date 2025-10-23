@@ -1,8 +1,8 @@
 # How to evaluate monocular depth estimation?
 This repository contains the source code for our paper:
 
-How to evaluate monocular depth estimation?<br/>
-Siyang Wu, Jack Nugent, Willow Yang, Jia Deng
+[How to evaluate monocular depth estimation?](https://arxiv.org/abs/2510.19814)<br/>
+[Siyang Wu](https://nj-wusiyang.github.io/), Jack Nugent, Willow Yang, [Jia Deng](https://www.cs.princeton.edu/~jiadeng/)
 
 ## Installation Instructions
 Under `EvalMDE`, run:
@@ -71,8 +71,10 @@ By default, the script renders visualization using GPU. Add `--cpu` to run every
 
 `ROT_LIGHT_NUM_LIGHT,ROT_LIGHT_NUM_LOOP` in `evalmde/visualization/__init__.py` specifies the light configuration. 
 `ROT_LIGHT_NUM_LIGHT` locations of the source of directional light are equally spaced along the path that spirals up from `(0,0,-1)` to `(0,0,1)` along the surface of a unit sphere, rotating around `z`-axis for `ROT_LIGHT_NUM_LOOP` times.
-Textureless mesh under the `i`-th source of directional light (`LIGHT_L<=i<LIGHT_R`) are rendered in the above command. 
 Textureless mesh under the `i`-th source of directional light (`LIGHT_L<=i<LIGHT_R`) are rendered in the above command.
 
 ## Dataset
 Dataset can be accessed [here](https://drive.google.com/drive/folders/1amzb6KyF2USFQ5W4CeYKFCh1F-yOQsmp?usp=sharing).
+
+## Acknowledgments
+This repository uses open source projects. We specially thank authors of [MoGe](https://github.com/microsoft/MoGe), [Marigold](https://github.com/prs-eth/Marigold), [DepthPro](https://github.com/apple/ml-depth-pro).
