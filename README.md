@@ -4,6 +4,15 @@ This repository contains the source code for our paper:
 [How to evaluate monocular depth estimation?](https://arxiv.org/abs/2510.19814)<br/>
 [Siyang Wu](https://nj-wusiyang.github.io/), Jack Nugent, Willow Yang, [Jia Deng](https://www.cs.princeton.edu/~jiadeng/)
 
+```
+@article{wu2025evaluate,
+  title={How to Evaluate Monocular Depth Estimation?},
+  author={Wu, Siyang and Nugent, Jack and Yang, Willow and Deng, Jia},
+  journal={arXiv preprint arXiv:2510.19814},
+  year={2025}
+}
+```
+
 ## Installation Instructions
 Under `EvalMDE`, run:
 ```bash
@@ -45,6 +54,9 @@ Please refer to `compute_metrics_example.py`
 
 ## Visualization
 ### Projected Contours
+
+<img src="images/projected_contours.png">
+
 ```bash
 ROOT=sample_data  # Path to directory where rgb.png is located
 # ROOT=sample_data_2
@@ -56,6 +68,9 @@ python evalmde/visualization/render_contour_line.py $ROOT --depth_f $DEPTH_F
 Running the above command generates projected contours visualization under `sample_data/contour_line` or `sample_data_2/contour_line`.
 Projected contours of different densities along different axes are generated.
 ### Textureless Relighting
+
+<img src="images/textureless_relighting.png">
+
 ```bash
 ROOT=sample_data  # Path to directory where rgb.png is located
 # ROOT=sample_data_2
