@@ -1,26 +1,82 @@
-import sys
+from typing import Tuple
 
 import numpy as np
 import torch
 
-from evalmde import MOGE_PATH, MARIGOLD_PATH
 from evalmde.utils.constants import VALID_DEPTH_LB, VALID_DEPTH_UB
 from evalmde.utils.torch import reformat_as_torch_tensor
 
-sys.path.append(str(MOGE_PATH))
-from moge.utils.geometry_torch import mask_aware_nearest_resize
-from moge.utils.alignment import (
-    align_points_scale_z_shift,
-    align_points_scale_xyz_shift,
-    align_points_xyz_shift,
-    align_affine_lstsq,
-    align_depth_scale,
-    align_depth_affine,
-    align_points_scale,
-)
 
-sys.path.append(str(MARIGOLD_PATH))
-from src.util.alignment import align_depth_least_square
+def align_depth_least_square(
+    gt_arr: np.ndarray,
+    pred_arr: np.ndarray,
+    valid_mask_arr: np.ndarray,
+    return_scale_shift=True,
+    max_resolution=None,
+):
+    # https://github.com/prs-eth/Marigold/blob/62413d56099d36573b2de1eb8/src/util/alignment.py#L8
+    ori_shape = pred_arr.shape  # input shape
+
+    gt = gt_arr.squeeze()  # [H, W]
+    pred = pred_arr.squeeze()
+    valid_mask = valid_mask_arr.squeeze()
+
+    # Downsample
+    if max_resolution is not None:
+        scale_factor = np.min(max_resolution / np.array(ori_shape[-2:]))
+        if scale_factor < 1:
+            downscaler = torch.nn.Upsample(scale_factor=scale_factor, mode="nearest")
+            gt = downscaler(torch.as_tensor(gt).unsqueeze(0)).numpy()
+            pred = downscaler(torch.as_tensor(pred).unsqueeze(0)).numpy()
+            valid_mask = (
+                downscaler(torch.as_tensor(valid_mask).unsqueeze(0).float())
+                .bool()
+                .numpy()
+            )
+
+    assert (
+        gt.shape == pred.shape == valid_mask.shape
+    ), f"{gt.shape}, {pred.shape}, {valid_mask.shape}"
+
+    gt_masked = gt[valid_mask].reshape((-1, 1))
+    pred_masked = pred[valid_mask].reshape((-1, 1))
+
+    # numpy solver
+    _ones = np.ones_like(pred_masked)
+    A = np.concatenate([pred_masked, _ones], axis=-1)
+    X = np.linalg.lstsq(A, gt_masked, rcond=None)[0]
+    scale, shift = X
+
+    aligned_pred = pred_arr * scale + shift
+
+    # restore dimensions
+    aligned_pred = aligned_pred.reshape(ori_shape)
+
+    if return_scale_shift:
+        return aligned_pred, scale, shift
+    else:
+        return aligned_pred
+
+
+def align_affine_lstsq(x: torch.Tensor, y: torch.Tensor, w: torch.Tensor = None) -> Tuple[torch.Tensor, torch.Tensor]:
+    # https://github.com/microsoft/MoGe/blob/a8c37341bc0325ca99b9d57981cc3bb2bd3e255b/moge/utils/alignment.py#L399
+    """
+    Solve `min sum_i w_i * (a * x_i + b - y_i ) ^ 2`, where `a` and `b` are scalars, with respect to `a` and `b` using least squares.
+
+    ### Parameters:
+    - `x: torch.Tensor` of shape (..., N)
+    - `y: torch.Tensor` of shape (..., N)
+    - `w: torch.Tensor` of shape (..., N)
+
+    ### Returns:
+    - `a: torch.Tensor` of shape (...,)
+    - `b: torch.Tensor` of shape (...,)
+    """
+    w_sqrt = torch.ones_like(x) if w is None else w.sqrt()
+    A = torch.stack([w_sqrt * x, torch.ones_like(x)], dim=-1)
+    B = (w_sqrt * y)[..., None]
+    a, b = torch.linalg.lstsq(A, B)[0].squeeze(-1).unbind(-1)
+    return a, b
 
 
 def get_depth_valid(depth, valid_depth_lb=VALID_DEPTH_LB, valid_depth_ub=VALID_DEPTH_UB):
@@ -48,17 +104,6 @@ def align(pred, gt, gt_valid, method, return_align_param=False, eps=1e-4):
         if return_align_param:
             return pred, None
         return pred
-    if method == 'depth_scale-no_weight':
-        # pred: scale-invariant depth
-        # gt: gt depth
-        # return: aligned depth
-        if not gt_valid.any():
-            sc = 1
-        else:
-            sc = (gt[gt_valid] * pred[gt_valid]).sum() / (pred[gt_valid] * pred[gt_valid]).sum()
-        if return_align_param:
-            return sc * pred, float(sc)
-        return sc * pred
 
     if method == 'depth_affine_lst_sq_clip_by_0':
         # pred: affine-invariant depth
@@ -84,42 +129,4 @@ def align(pred, gt, gt_valid, method, return_align_param=False, eps=1e-4):
             return ret, (float(scale), float(shift))
         return ret
 
-    _, lr_mask, lr_index = mask_aware_nearest_resize(None, gt_valid, (64, 64), return_index=True)
-    pred_lr_masked, gt_lr_masked = pred[lr_index][lr_mask], gt[lr_index][lr_mask]
-    if method == 'depth_scale':
-        # pred: scale-invariant depth
-        # gt: gt depth
-        # return: aligned depth
-        scale = align_depth_scale(pred_lr_masked, gt_lr_masked, 1 / gt_lr_masked)
-        if return_align_param:
-            return scale * pred, float(scale)
-        return scale * pred
-    elif method in ['depth_affine', 'depth_affine_clip_by_0']:
-        # pred: affine-invariant depth
-        # gt: gt depth
-        # return: aligned depth
-        scale, shift = align_depth_affine(pred_lr_masked, gt_lr_masked, 1 / gt_lr_masked)
-        ret = scale * pred + shift
-        if method == 'depth_affine_clip_by_0':
-            ret = ret.clamp_min(eps)
-        if return_align_param:
-            return ret, (float(scale), float(shift))
-        return ret
-    elif method == 'point_scale':
-        # pred: scale-invariant point map
-        # gt: gt point map
-        # return: aligned point map
-        scale = align_points_scale(pred_lr_masked, gt_lr_masked, 1 / gt_lr_masked.norm(dim=-1))
-        if return_align_param:
-            return scale * pred, float(scale)
-        return scale * pred
-    elif method == 'point_affine':
-        # pred: affine-invariant point map
-        # gt: gt point map
-        # return: aligned point map
-        scale, shift = align_points_scale_xyz_shift(pred_lr_masked, gt_lr_masked, 1 / gt_lr_masked.norm(dim=-1))
-        if return_align_param:
-            return scale * pred + shift, (float(scale), shift)
-        return scale * pred + shift
-    else:
-        raise ValueError(f'{method=}')
+    raise NotImplementedError(f'{method=}')

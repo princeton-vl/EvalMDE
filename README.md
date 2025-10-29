@@ -19,14 +19,9 @@ Under `EvalMDE`, run:
 conda create -n evalmde python=3.10 -y
 conda activate evalmde
 
-conda install pytorch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 pytorch-cuda=12.1 -c pytorch -c nvidia -y
-conda install nvidia/label/cuda-12.1.0::cuda -y
-conda install nvidia/label/cuda-12.1.0::cuda-cudart -y
-conda install pytorch-scatter -c pyg -y
+pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 --index-url https://download.pytorch.org/whl/cu126
 pip install -e .
 pip install bpy==4.0.0 --extra-index-url https://download.blender.org/pypi/
-pip install "git+https://github.com/facebookresearch/pytorch3d.git"
-pip install "git+https://github.com/EasternJournalist/utils3d.git@3fab839f0be9931dac7c8488eb0e1600c236e183"
 ```
 
 ## Data Format
