@@ -6,7 +6,7 @@ This repository contains the source code for our paper:
 
 ```
 @article{wu2025evaluate,
-  title={How to Evaluate Monocular Depth Estimation?},
+  title={How Should One Evaluate Monocular Depth Estimation?},
   author={Wu, Siyang and Nugent, Jack and Yang, Willow and Deng, Jia},
   journal={arXiv preprint arXiv:2510.19814},
   year={2025}
