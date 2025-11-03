@@ -1,7 +1,7 @@
-# How to evaluate monocular depth estimation?
+# How Should One Evaluate Monocular Depth Estimation?
 This repository contains the source code for our paper:
 
-[How to evaluate monocular depth estimation?](https://arxiv.org/abs/2510.19814)<br/>
+[How Should One Evaluate Monocular Depth Estimation?](https://arxiv.org/abs/2510.19814)<br/>
 [Siyang Wu](https://nj-wusiyang.github.io/), Jack Nugent, Willow Yang, [Jia Deng](https://www.cs.princeton.edu/~jiadeng/)
 
 ```
