@@ -1,12 +1,12 @@
-# How Should One Evaluate Monocular Depth Estimation?
+# Toward A Better Understanding of Monocular Depth Evaluation
 This repository contains the source code for our paper:
 
-[How Should One Evaluate Monocular Depth Estimation?](https://arxiv.org/abs/2510.19814)<br/>
+[Toward A Better Understanding of Monocular Depth Evaluation](https://arxiv.org/abs/2510.19814)<br/>
 [Siyang Wu](https://nj-wusiyang.github.io/), Jack Nugent, Willow Yang, [Jia Deng](https://www.cs.princeton.edu/~jiadeng/)
 
 ```
 @article{wu2025evaluate,
-  title={How Should One Evaluate Monocular Depth Estimation?},
+  title={Toward A Better Understanding of Monocular Depth Evaluation},
   author={Wu, Siyang and Nugent, Jack and Yang, Willow and Deng, Jia},
   journal={arXiv preprint arXiv:2510.19814},
   year={2025}
